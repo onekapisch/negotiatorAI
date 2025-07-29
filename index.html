@@ -1,22 +1,20 @@
 <!DOCTYPE html>
-<html lang="en" data-color-scheme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NegotiatorAI</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <header class="container flex justify-between items-center py-16">
-    <h1 class="neon-text">🛠️ NegotiatorAI</h1>
-    <div>
-        <button id="btn-101" class="btn btn--secondary">Negotiation 101</button>
-        <button id="btn-theme" class="btn btn--secondary">☀️</button>
-        <button id="btn-home" class="btn btn--secondary hidden">Home</button>
-    </div>
-  </header>
-  <main id="app" class="container"></main>
+  <nav class="navbar">
+    <h1>NegotiatorAI</h1>
+    <div class="nav-links" id="nav-links"></div>
+    <button id="theme-toggle" class="btn btn--secondary">Toggle Theme</button>
+    <button id="btn-home" class="btn btn--secondary hidden">Home</button>
+  </nav>
+  <div id="app"></div>
   <script src="app.js"></script>
 </body>
 </html>
