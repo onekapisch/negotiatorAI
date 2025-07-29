@@ -76,6 +76,50 @@ class NegotiatorApp {
           { id: "r2", initialRent: 4500, minRent: 3700, personality: "amenity-seller" },
           { id: "r3", initialRent: 4200, minRent: 3400, personality: "long-lease lover" }
         ]
+      },
+      {
+        id: "logistics-contract",
+        title: "Logistics Contract",
+        avatarUrl: "🚚",
+        difficulty: "hard",
+        hints: ["Negotiate fuel surcharges", "Discuss volume discounts"],
+        variations: [
+            { id: "l1", initialPrice: 50000, minPrice: 40000, personality: "efficiency-expert" },
+            { id: "l2", initialPrice: 60000, minPrice: 48000, personality: "risk-averse" },
+        ]
+      },
+      {
+          id: "electronics-supplier",
+          title: "Electronics Supplier",
+          avatarUrl: "🔌",
+          difficulty: "hard",
+          hints: ["Question component quality", "Explore bulk-pricing tiers"],
+          variations: [
+              { id: "e1", initialPrice: 100000, minPrice: 85000, personality: "tech-enthusiast" },
+              { id: "e2", initialPrice: 120000, minPrice: 95000, personality: "data-driven" },
+          ]
+      },
+      {
+          id: "energy-procurement",
+          title: "Energy Procurement",
+          avatarUrl: "⚡️",
+          difficulty: "hard",
+          hints: ["Discuss renewable energy credits", "Negotiate contract length for rate stability"],
+          variations: [
+              { id: "en1", initialPrice: 250000, minPrice: 210000, personality: "sustainability-advocate" },
+              { id: "en2", initialPrice: 275000, minPrice: 230000, personality: "market-watcher" },
+          ]
+      },
+      {
+          id: "chemical-supply",
+          title: "Chemical Supply Agreement",
+          avatarUrl: "🧪",
+          difficulty: "hard",
+          hints: ["Inquire about purity levels and certification", "Negotiate hazardous material handling fees"],
+          variations: [
+              { id: "ch1", initialPrice: 75000, minPrice: 60000, personality: "safety-officer" },
+              { id: "ch2", initialPrice: 85000, minPrice: 68000, personality: "logistics-expert" },
+          ]
       }
     ];
 
@@ -113,6 +157,22 @@ class NegotiatorApp {
     window.addEventListener('hashchange', () => {
       this.navigateToRoute(window.location.hash.slice(1));
     });
+    
+    document.getElementById('btn-101').addEventListener('click', () => {
+        this.navigateToRoute('/negotiation-101');
+    });
+
+    document.getElementById('btn-theme').addEventListener('click', () => {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-color-scheme');
+        if (currentTheme === 'dark') {
+            html.setAttribute('data-color-scheme', 'light');
+            document.getElementById('btn-theme').textContent = '🌙';
+        } else {
+            html.setAttribute('data-color-scheme', 'dark');
+            document.getElementById('btn-theme').textContent = '☀️';
+        }
+    });
 
     // Setup home button click handler
     document.getElementById('btn-home').addEventListener('click', () => {
@@ -144,7 +204,7 @@ class NegotiatorApp {
     }
 
     // Show/hide home button based on route
-    if (route === '/' || route === '/login' || route === '/signup') {
+    if (route === '/' || route === '/login' || route === '/signup' || route === '/negotiation-101') {
       homeBtn.classList.add('hidden');
     } else {
       homeBtn.classList.remove('hidden');
@@ -177,6 +237,9 @@ class NegotiatorApp {
       case '/guest':
         this.renderGuestScenarios();
         break;
+      case '/negotiation-101':
+        this.renderNegotiation101();
+        break;
       default:
         if (route.startsWith('/chat/')) {
           const scenarioId = route.split('/')[2];
@@ -185,6 +248,43 @@ class NegotiatorApp {
           this.renderLandingPage();
         }
     }
+  }
+
+  renderNegotiation101() {
+    const app = document.getElementById('app');
+    app.innerHTML = `
+        <div class="container fade-in">
+            <h1 class="neon-text mb-24">Negotiation 101</h1>
+            <p class="mb-24 color-text-secondary">Your guide to becoming a master negotiator.</p>
+
+            <div class="card mb-24">
+                <div class="card__body">
+                    <h3 class="mb-16">The 7 Rules of Negotiation</h3>
+                    <ol>
+                        <li><strong>Be prepared.</strong> Know your goals, your bottom line, and your BATNA (Best Alternative to a Negotiated Agreement).</li>
+                        <li><strong>Listen more than you talk.</strong> You'll learn more by listening to the other party's needs and motivations.</li>
+                        <li><strong>Aim for a win-win solution.</strong> A good deal is one where both parties feel they've gained something.</li>
+                        <li><strong>Don't be afraid to ask for what you want.</strong> Be assertive, but not aggressive.</li>
+                        <li><strong>Be patient.</strong> Don't rush into a deal. Time can be a powerful tool.</li>
+                        <li><strong>Know when to walk away.</strong> If a deal isn't right, be prepared to walk away.</li>
+                        <li><strong>Get it in writing.</strong> A written agreement prevents misunderstandings later on.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card__body">
+                    <h3 class="mb-16">Tips & Tricks</h3>
+                    <ul>
+                        <li><strong>Anchor the conversation.</strong> The first number mentioned in a negotiation often becomes the anchor point for the rest of the discussion.</li>
+                        <li><strong>Use silence to your advantage.</strong> People are often uncomfortable with silence and will talk to fill it, sometimes revealing valuable information.</li>
+                        <li><strong>Bundle and trade.</strong> If you're negotiating on multiple items, you can bundle them together and trade concessions on different items.</li>
+                        <li><strong>Build rapport.</strong> People are more likely to make a deal with someone they like and trust.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
   }
 
   renderLandingPage() {
@@ -472,7 +572,7 @@ class NegotiatorApp {
         
         <div class="scenario-grid">
           ${availableScenarios.map(scenario => {
-            const isLocked = !isGuest && user && user.level === 1 && scenario.difficulty === 'intermediate';
+            const isLocked = !isGuest && user && user.level < 3 && scenario.difficulty === 'hard';
             return `
               <div class="scenario-card ${isLocked ? 'opacity-50' : ''}" ${!isLocked ? `onclick="app.startScenario('${scenario.id}')"` : ''}>
                 <div class="flex items-center gap-16 mb-16">
@@ -486,7 +586,7 @@ class NegotiatorApp {
                 <div class="text-sm color-text-secondary">
                   ${scenario.hints.slice(0, 2).join(' • ')}
                 </div>
-                ${isLocked ? '<p class="mt-8 text-sm color-warning">Reach Level 2 to unlock</p>' : ''}
+                ${isLocked ? '<p class="mt-8 text-sm color-warning">Reach Level 3 to unlock</p>' : ''}
               </div>
             `;
           }).join('')}
