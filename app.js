@@ -78,48 +78,52 @@ class NegotiatorApp {
         ]
       },
       {
-        id: "logistics-contract",
-        title: "Logistics Contract",
+        id: "logistics",
+        title: "Logistics Freight Shipping",
         avatarUrl: "🚚",
-        difficulty: "hard",
-        hints: ["Negotiate fuel surcharges", "Discuss volume discounts"],
+        difficulty: "intermediate",
+        hints: ["Negotiate on volume discounts", "Discuss fuel surcharges and timelines"],
         variations: [
-            { id: "l1", initialPrice: 50000, minPrice: 40000, personality: "efficiency-expert" },
-            { id: "l2", initialPrice: 60000, minPrice: 48000, personality: "risk-averse" },
+          { id: "l1", initialPrice: 5000, minPrice: 4000, personality: "efficient" },
+          { id: "l2", initialPrice: 6000, minPrice: 4500, personality: "reliable" },
+          { id: "l3", initialPrice: 5500, minPrice: 4200, personality: "flexible" }
         ]
       },
       {
-          id: "electronics-supplier",
-          title: "Electronics Supplier",
-          avatarUrl: "🔌",
-          difficulty: "hard",
-          hints: ["Question component quality", "Explore bulk-pricing tiers"],
-          variations: [
-              { id: "e1", initialPrice: 100000, minPrice: 85000, personality: "tech-enthusiast" },
-              { id: "e2", initialPrice: 120000, minPrice: 95000, personality: "data-driven" },
-          ]
+        id: "electronics",
+        title: "Electronics Component Supplier",
+        avatarUrl: "🔌",
+        difficulty: "intermediate",
+        hints: ["Ask for bulk pricing", "Negotiate on delivery terms"],
+        variations: [
+          { id: "e1", initialPrice: 2000, minPrice: 1500, personality: "innovative" },
+          { id: "e2", initialPrice: 2500, minPrice: 1800, personality: "quality-focused" },
+          { id: "e3", initialPrice: 2200, minPrice: 1600, personality: "competitive" }
+        ]
       },
       {
-          id: "energy-procurement",
-          title: "Energy Procurement",
-          avatarUrl: "⚡️",
-          difficulty: "hard",
-          hints: ["Discuss renewable energy credits", "Negotiate contract length for rate stability"],
-          variations: [
-              { id: "en1", initialPrice: 250000, minPrice: 210000, personality: "sustainability-advocate" },
-              { id: "en2", initialPrice: 275000, minPrice: 230000, personality: "market-watcher" },
-          ]
+        id: "energy",
+        title: "Energy Supply Contract",
+        avatarUrl: "⚡",
+        difficulty: "intermediate",
+        hints: ["Discuss long-term rates", "Negotiate on renewable options"],
+        variations: [
+          { id: "en1", initialPrice: 10000, minPrice: 8000, personality: "sustainable" },
+          { id: "en2", initialPrice: 12000, minPrice: 9000, personality: "reliable" },
+          { id: "en3", initialPrice: 11000, minPrice: 8500, personality: "cost-effective" }
+        ]
       },
       {
-          id: "chemical-supply",
-          title: "Chemical Supply Agreement",
-          avatarUrl: "🧪",
-          difficulty: "hard",
-          hints: ["Inquire about purity levels and certification", "Negotiate hazardous material handling fees"],
-          variations: [
-              { id: "ch1", initialPrice: 75000, minPrice: 60000, personality: "safety-officer" },
-              { id: "ch2", initialPrice: 85000, minPrice: 68000, personality: "logistics-expert" },
-          ]
+        id: "chemicals",
+        title: "Industrial Chemicals Provider",
+        avatarUrl: "🧪",
+        difficulty: "intermediate",
+        hints: ["Inquire about safety standards", "Negotiate on quantity breaks"],
+        variations: [
+          { id: "ch1", initialPrice: 8000, minPrice: 6000, personality: "safety-first" },
+          { id: "ch2", initialPrice: 9000, minPrice: 7000, personality: "volume-seller" },
+          { id: "ch3", initialPrice: 8500, minPrice: 6500, personality: "custom-blend" }
+        ]
       }
     ];
 
@@ -137,6 +141,7 @@ class NegotiatorApp {
   init() {
     this.loadUserData();
     this.setupEventListeners();
+    this.loadTheme();
     this.navigateToRoute(window.location.hash.slice(1) || '/');
   }
 
@@ -153,26 +158,26 @@ class NegotiatorApp {
     }
   }
 
+  loadTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-color-scheme', savedTheme);
+    }
+  }
+
+  toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-color-scheme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-color-scheme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  }
+
   setupEventListeners() {
     window.addEventListener('hashchange', () => {
       this.navigateToRoute(window.location.hash.slice(1));
     });
-    
-    document.getElementById('btn-101').addEventListener('click', () => {
-        this.navigateToRoute('/negotiation-101');
-    });
 
-    document.getElementById('btn-theme').addEventListener('click', () => {
-        const html = document.documentElement;
-        const currentTheme = html.getAttribute('data-color-scheme');
-        if (currentTheme === 'dark') {
-            html.setAttribute('data-color-scheme', 'light');
-            document.getElementById('btn-theme').textContent = '🌙';
-        } else {
-            html.setAttribute('data-color-scheme', 'dark');
-            document.getElementById('btn-theme').textContent = '☀️';
-        }
-    });
+    document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
 
     // Setup home button click handler
     document.getElementById('btn-home').addEventListener('click', () => {
@@ -184,13 +189,39 @@ class NegotiatorApp {
     });
 
     // Setup logo click handler for navigation
-    document.querySelector('h1').addEventListener('click', () => {
+    document.querySelector('nav h1').addEventListener('click', () => {
       if (this.currentUser) {
         this.navigateToRoute('/dashboard');
       } else {
         this.navigateToRoute('/');
       }
     });
+  }
+
+  updateNavLinks() {
+    const navLinks = document.getElementById('nav-links');
+    if (!navLinks) return;
+
+    if (this.currentUser) {
+      navLinks.innerHTML = `
+        <a href="#/dashboard">Dashboard</a>
+        <a href="#/scenarios">Scenarios</a>
+        <a href="#/education">Negotiation 101</a>
+        <button class="btn btn--secondary" onclick="app.logout()">Logout</button>
+      `;
+    } else {
+      navLinks.innerHTML = `
+        <a href="#/login">Login</a>
+        <a href="#/signup">Sign Up</a>
+        <a href="#/education">Negotiation 101</a>
+      `;
+    }
+  }
+
+  logout() {
+    this.currentUser = null;
+    localStorage.removeItem('negotiatorUser');
+    this.navigateToRoute('/');
   }
 
   navigateToRoute(route) {
@@ -204,11 +235,13 @@ class NegotiatorApp {
     }
 
     // Show/hide home button based on route
-    if (route === '/' || route === '/login' || route === '/signup' || route === '/negotiation-101') {
+    if (route === '/' || route === '/login' || route === '/signup') {
       homeBtn.classList.add('hidden');
     } else {
       homeBtn.classList.remove('hidden');
     }
+
+    this.updateNavLinks();
 
     switch (route) {
       case '/':
@@ -237,8 +270,8 @@ class NegotiatorApp {
       case '/guest':
         this.renderGuestScenarios();
         break;
-      case '/negotiation-101':
-        this.renderNegotiation101();
+      case '/education':
+        this.renderEducationPage();
         break;
       default:
         if (route.startsWith('/chat/')) {
@@ -250,53 +283,16 @@ class NegotiatorApp {
     }
   }
 
-  renderNegotiation101() {
-    const app = document.getElementById('app');
-    app.innerHTML = `
-        <div class="container fade-in">
-            <h1 class="neon-text mb-24">Negotiation 101</h1>
-            <p class="mb-24 color-text-secondary">Your guide to becoming a master negotiator.</p>
-
-            <div class="card mb-24">
-                <div class="card__body">
-                    <h3 class="mb-16">The 7 Rules of Negotiation</h3>
-                    <ol>
-                        <li><strong>Be prepared.</strong> Know your goals, your bottom line, and your BATNA (Best Alternative to a Negotiated Agreement).</li>
-                        <li><strong>Listen more than you talk.</strong> You'll learn more by listening to the other party's needs and motivations.</li>
-                        <li><strong>Aim for a win-win solution.</strong> A good deal is one where both parties feel they've gained something.</li>
-                        <li><strong>Don't be afraid to ask for what you want.</strong> Be assertive, but not aggressive.</li>
-                        <li><strong>Be patient.</strong> Don't rush into a deal. Time can be a powerful tool.</li>
-                        <li><strong>Know when to walk away.</strong> If a deal isn't right, be prepared to walk away.</li>
-                        <li><strong>Get it in writing.</strong> A written agreement prevents misunderstandings later on.</li>
-                    </ol>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card__body">
-                    <h3 class="mb-16">Tips & Tricks</h3>
-                    <ul>
-                        <li><strong>Anchor the conversation.</strong> The first number mentioned in a negotiation often becomes the anchor point for the rest of the discussion.</li>
-                        <li><strong>Use silence to your advantage.</strong> People are often uncomfortable with silence and will talk to fill it, sometimes revealing valuable information.</li>
-                        <li><strong>Bundle and trade.</strong> If you're negotiating on multiple items, you can bundle them together and trade concessions on different items.</li>
-                        <li><strong>Build rapport.</strong> People are more likely to make a deal with someone they like and trust.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    `;
-  }
-
   renderLandingPage() {
     const app = document.getElementById('app');
     app.innerHTML = `
       <div class="container">
         <div class="text-center py-16">
-          <h1 class="neon-text mb-8">Welcome to NegotiatorAI</h1>
+          <h1 class="mb-8">Welcome to NegotiatorAI</h1>
           <p class="text-xl mb-16 color-text-secondary">Master the art of negotiation through AI-powered training</p>
           
           <div class="flex gap-16 justify-center flex-wrap">
-            <button onclick="app.navigateToRoute('/guest')" class="btn btn--neon btn--lg">
+            <button onclick="app.navigateToRoute('/guest')" class="btn btn--primary btn--lg">
               Try as Guest
             </button>
             <button onclick="app.navigateToRoute('/login')" class="btn btn--secondary btn--lg">
@@ -338,7 +334,7 @@ class NegotiatorApp {
       <div class="form-container">
         <div class="card">
           <div class="card__body">
-            <h2 class="text-center mb-24 neon-text">Login to NegotiatorAI</h2>
+            <h2 class="text-center mb-24">Login to NegotiatorAI</h2>
             <form id="login-form">
               <div class="form-group">
                 <label class="form-label">Email</label>
@@ -348,7 +344,7 @@ class NegotiatorApp {
                 <label class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" required>
               </div>
-              <button type="submit" class="btn btn--neon btn--full-width mb-16">Login</button>
+              <button type="submit" class="btn btn--primary btn--full-width mb-16">Login</button>
             </form>
             <div class="text-center">
               <p>Don't have an account? <a href="#/signup">Sign up</a></p>
@@ -387,7 +383,7 @@ class NegotiatorApp {
       <div class="form-container">
         <div class="card">
           <div class="card__body">
-            <h2 class="text-center mb-24 neon-text">Join NegotiatorAI</h2>
+            <h2 class="text-center mb-24">Join NegotiatorAI</h2>
             <form id="signup-form">
               <div class="form-group">
                 <label class="form-label">Username</label>
@@ -401,7 +397,7 @@ class NegotiatorApp {
                 <label class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" required minlength="8">
               </div>
-              <button type="submit" class="btn btn--neon btn--full-width mb-16">Sign Up</button>
+              <button type="submit" class="btn btn--primary btn--full-width mb-16">Sign Up</button>
             </form>
             <div class="text-center">
               <p>Already have an account? <a href="#/login">Login</a></p>
@@ -443,7 +439,7 @@ class NegotiatorApp {
     app.innerHTML = `
       <div class="container fade-in">
         <div class="flex justify-between items-center mb-32">
-          <h1 class="neon-text">Welcome back, ${user.username}!</h1>
+          <h1>Welcome back, ${user.username}!</h1>
           <div class="level-display">Level ${user.level}</div>
         </div>
 
@@ -489,7 +485,7 @@ class NegotiatorApp {
         </div>
 
         <div class="text-center mt-32">
-          <button onclick="app.navigateToRoute('/scenarios')" class="btn btn--neon btn--lg pulse-glow">
+          <button onclick="app.navigateToRoute('/scenarios')" class="btn btn--primary btn--lg">
             Start Negotiating
           </button>
         </div>
@@ -522,8 +518,8 @@ class NegotiatorApp {
         datasets: [{
           label: 'Score',
           data: negotiations.map(n => n.score),
-          borderColor: '#1FB8CD',
-          backgroundColor: 'rgba(31, 184, 205, 0.1)',
+          borderColor: 'var(--color-primary)',
+          backgroundColor: 'rgba(var(--color-primary-rgb), 0.1)',
           tension: 0.4,
           fill: true
         }]
@@ -533,17 +529,17 @@ class NegotiatorApp {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            labels: { color: '#f5f5f5' }
+            labels: { color: 'var(--color-text)' }
           }
         },
         scales: {
           x: { 
-            ticks: { color: '#f5f5f5' },
-            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            ticks: { color: 'var(--color-text-secondary)' },
+            grid: { color: 'rgba(var(--color-text-rgb), 0.1)' }
           },
           y: { 
-            ticks: { color: '#f5f5f5' },
-            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            ticks: { color: 'var(--color-text-secondary)' },
+            grid: { color: 'rgba(var(--color-text-rgb), 0.1)' }
           }
         }
       }
@@ -567,12 +563,12 @@ class NegotiatorApp {
     const app = document.getElementById('app');
     app.innerHTML = `
       <div class="container fade-in">
-        <h1 class="neon-text mb-24">${isGuest ? 'Try These Scenarios' : 'Choose Your Challenge'}</h1>
+        <h1 class="mb-24">${isGuest ? 'Try These Scenarios' : 'Choose Your Challenge'}</h1>
         ${isGuest ? '<p class="mb-24 color-text-secondary">Experience NegotiatorAI with these sample scenarios</p>' : ''}
         
         <div class="scenario-grid">
           ${availableScenarios.map(scenario => {
-            const isLocked = !isGuest && user && user.level < 3 && scenario.difficulty === 'hard';
+            const isLocked = !isGuest && user && user.level === 1 && scenario.difficulty === 'intermediate';
             return `
               <div class="scenario-card ${isLocked ? 'opacity-50' : ''}" ${!isLocked ? `onclick="app.startScenario('${scenario.id}')"` : ''}>
                 <div class="flex items-center gap-16 mb-16">
@@ -586,7 +582,7 @@ class NegotiatorApp {
                 <div class="text-sm color-text-secondary">
                   ${scenario.hints.slice(0, 2).join(' • ')}
                 </div>
-                ${isLocked ? '<p class="mt-8 text-sm color-warning">Reach Level 3 to unlock</p>' : ''}
+                ${isLocked ? '<p class="mt-8 text-sm color-warning">Reach Level 2 to unlock</p>' : ''}
               </div>
             `;
           }).join('')}
@@ -595,9 +591,58 @@ class NegotiatorApp {
         ${isGuest ? `
         <div class="text-center mt-32">
           <p class="mb-16 color-text-secondary">Ready to unlock all scenarios and track your progress?</p>
-          <button onclick="app.navigateToRoute('/signup')" class="btn btn--neon">Sign Up Now</button>
+          <button onclick="app.navigateToRoute('/signup')" class="btn btn--primary">Sign Up Now</button>
         </div>
         ` : ''}
+      </div>
+    `;
+  }
+
+  renderEducationPage() {
+    const app = document.getElementById('app');
+    app.innerHTML = `
+      <div class="container fade-in">
+        <h1 class="mb-24">Negotiation 101</h1>
+        <p class="mb-32 color-text-secondary">Essential knowledge, tips, and tricks to become a master negotiator.</p>
+        
+        <div class="scenario-grid">
+          <div class="card">
+            <div class="card__body">
+              <h3 class="mb-8">Prepare Thoroughly</h3>
+              <p>Research the other party, know your goals, and understand market values. Tip: Always have a BATNA (Best Alternative to a Negotiated Agreement).</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__body">
+              <h3 class="mb-8">Build Rapport</h3>
+              <p>Establish trust and a positive relationship early. Trick: Use active listening and mirror their language to create connection.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__body">
+              <h3 class="mb-8">Listen Actively</h3>
+              <p>Pay attention to what’s said and unsaid. Tip: Ask open-ended questions to uncover needs and motivations.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__body">
+              <h3 class="mb-8">Use Silence Strategically</h3>
+              <p>Don’t rush to fill gaps; let the other party speak. Trick: After making an offer, stay silent to pressure them into responding.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__body">
+              <h3 class="mb-8">Make Concessions Wisely</h3>
+              <p>Give away less valuable items in exchange for more important ones. Tip: Anchor high and concede slowly.</p>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card__body">
+              <h3 class="mb-8">Close the Deal</h3>
+              <p>Summarize agreements and confirm next steps. Trick: Use assumptive closes like "When would you like to start?"</p>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -632,8 +677,8 @@ class NegotiatorApp {
     }
 
     const negotiation = this.currentNegotiation;
-    const priceLabel = scenarioId.includes('freelancer') ? 'Rate' : 
-                      scenarioId.includes('real-estate') ? 'Rent' : 'Price';
+    const priceLabel = scenario.id.includes('freelancer') ? 'Rate' : 
+                      scenario.id.includes('real-estate') ? 'Rent' : 'Price';
 
     const app = document.getElementById('app');
     app.innerHTML = `
@@ -642,7 +687,7 @@ class NegotiatorApp {
           <div class="flex items-center gap-16">
             <div style="font-size: 3rem;">${scenario.avatarUrl}</div>
             <div class="flex-1">
-              <h2 class="neon-text">${scenario.title}</h2>
+              <h2>${scenario.title}</h2>
               <p class="color-text-secondary">Current ${priceLabel}: $${negotiation.currentOffer}</p>
               <div class="progress-bar mt-8">
                 <div class="progress-fill" style="width: ${Math.max(0, Math.min(100, ((negotiation.maxOffer - negotiation.currentOffer) / (negotiation.maxOffer - negotiation.minOffer)) * 100))}%"></div>
@@ -657,7 +702,7 @@ class NegotiatorApp {
 
         <div class="chat-messages" id="chat-messages">
           ${negotiation.messages.map(msg => `
-            <div class="chat-bubble chat-bubble--${msg.from} ${msg.from === 'ai' ? 'slide-up' : ''}">
+            <div class="chat-bubble chat-bubble--${msg.from}">
               ${msg.text}
             </div>
           `).join('')}
@@ -679,7 +724,7 @@ class NegotiatorApp {
             >
             <button 
               onclick="app.sendMessage()" 
-              class="btn btn--neon"
+              class="btn btn--primary"
               ${negotiation.messageCount >= 15 ? 'disabled' : ''}
             >
               Send
@@ -716,7 +761,11 @@ class NegotiatorApp {
       'stubborn': `This is a premium item worth every penny of $${negotiation.currentOffer}. The price reflects the quality you're getting.`,
       'helpful': `Hi there! I've got exactly what you need for $${negotiation.currentOffer}. Let me know how I can help make this work for you.`,
       'competitive': `You're looking at the best deal in town at $${negotiation.currentOffer}. My competitors can't match this quality at this price.`,
-      'collaborative': `I'm excited to work with you! My rate is $${negotiation.currentOffer}, but I'm open to discussing the details of our collaboration.`
+      'collaborative': `I'm excited to work with you! My rate is $${negotiation.currentOffer}, but I'm open to discussing the details of our collaboration.`,
+      'efficient': `Let's get down to business. The freight rate is $${negotiation.currentOffer}. What's your volume?`,
+      'innovative': `We offer cutting-edge components at $${negotiation.currentOffer}. How can we innovate together?`,
+      'sustainable': `Our energy supply is eco-friendly at $${negotiation.currentOffer}. Interested in green options?`,
+      'safety-first': `Safety is our priority with chemicals at $${negotiation.currentOffer}. What are your requirements?`
     };
 
     return personalities[negotiation.personality] || `Welcome! I'm offering this for $${negotiation.currentOffer}. What do you think?`;
@@ -777,7 +826,7 @@ class NegotiatorApp {
     
     messagesContainer.innerHTML = `
       ${negotiation.messages.map(msg => `
-        <div class="chat-bubble chat-bubble--${msg.from} ${msg.from === 'ai' ? 'slide-up' : ''}">
+        <div class="chat-bubble chat-bubble--${msg.from}">
           ${msg.text}
         </div>
       `).join('')}
@@ -895,6 +944,26 @@ class NegotiatorApp {
         "I believe we can find a solution that works for everyone.",
         "Let's explore how we can make this partnership successful.",
         "I'm committed to finding the right arrangement for us both."
+      ],
+      'efficient': [
+        "Time is money. Let's optimize this deal.",
+        "Efficiency is key. What specifics do you have?",
+        "Streamlining costs is possible with the right terms."
+      ],
+      'innovative': [
+        "Let's think outside the box for this negotiation.",
+        "Innovation drives value. What's your vision?",
+        "We can customize to meet your needs better."
+      ],
+      'sustainable': [
+        "Sustainability matters. Let's align on eco-friendly terms.",
+        "Long-term viability is crucial in energy deals.",
+        "Green options can save costs over time."
+      ],
+      'safety-first': [
+        "Safety compliance is non-negotiable.",
+        "We prioritize quality and safety in all supplies.",
+        "Let's ensure all standards are met."
       ]
     };
 
@@ -1002,7 +1071,7 @@ class NegotiatorApp {
           <div class="score-display mb-8">${score} Points</div>
           <p>Discount achieved: ${discount.toFixed(1)}%</p>
         </div>
-        ${leveledUp ? '<div class="mb-16 neon-text">🎊 LEVEL UP! 🎊</div>' : ''}
+        ${leveledUp ? '<div class="mb-16">🎊 LEVEL UP! 🎊</div>' : ''}
         ${this.currentUser ? '' : '<p class="mt-16 color-text-secondary">Sign up to save your progress and unlock more scenarios!</p>'}
       </div>
     `;
@@ -1016,48 +1085,17 @@ class NegotiatorApp {
     ];
 
     this.showModal(resultTitle, resultMessage, buttons);
-
-    // Trigger confetti for successful deals or level ups
-    if (success || leveledUp) {
-      setTimeout(() => this.triggerConfetti(), 500);
-    }
-  }
-
-  triggerConfetti() {
-    // Simple confetti effect using CSS
-    const confetti = document.createElement('div');
-    confetti.innerHTML = '🎉'.repeat(20);
-    confetti.style.cssText = `
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      pointer-events: none; z-index: 2000; font-size: 2rem;
-      animation: confettiFall 3s ease-out forwards;
-    `;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes confettiFall {
-        0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-        100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-      }
-    `;
-    document.head.appendChild(style);
-    document.body.appendChild(confetti);
-    
-    setTimeout(() => {
-      document.body.removeChild(confetti);
-      document.head.removeChild(style);
-    }, 3000);
   }
 
   showModal(title, content, buttons = []) {
     const modalHTML = `
       <div class="modal" id="app-modal">
         <div class="modal-content">
-          <h2 class="mb-16 neon-text">${title}</h2>
+          <h2 class="mb-16">${title}</h2>
           <div class="mb-24">${content}</div>
           <div class="flex gap-8 justify-center flex-wrap">
             ${buttons.map((btn, index) => 
-              `<button class="btn ${index === 0 ? 'btn--neon' : 'btn--secondary'}" onclick="app.modalActions[${index}]()">${btn.text}</button>`
+              `<button class="btn ${index === 0 ? 'btn--primary' : 'btn--secondary'}" onclick="app.modalActions[${index}]()">${btn.text}</button>`
             ).join('')}
           </div>
         </div>
